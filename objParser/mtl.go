@@ -67,10 +67,10 @@ func createMaterial() material {
 	return m
 }
 
-func getDefaultMtl() material {
+func getDefaultMtl() *material {
 	m := createMaterial();
 	m["diffuseColor"] = []float64{0.5, 0.5, 0.5, 1.0}
-	return m
+	return &m
 }
 
 func Parse(r io.Reader) materials {

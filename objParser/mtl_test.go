@@ -31,7 +31,7 @@ func TestCreateMaterial(t *testing.T) {
 
 func TestGetDefaultMtl(t *testing.T) {
 	newMaterial["diffuseColor"] = []float64{0.5, 0.5, 0.5, 1.0}
-	if !reflect.DeepEqual(getDefaultMtl(), material(newMaterial)) {
+	if !reflect.DeepEqual(*getDefaultMtl(), material(newMaterial)) {
 		t.Error("createMaterial() return bad result")
 	}
 }
