@@ -114,7 +114,10 @@ func Parse(r io.Reader) (*Obj, error) {
 
 		// load mtl
 		case string(token[0:6]) == "mtllib" && isSpace(token[6]) :
-			obj.Materials = mtllib(obj.Materials, string(token[7:]))
+			res := bytes.Split(token[7:], WSS)
+			for _, name := range res {
+				obj.Materials = mtllib(obj.Materials, string(name))
+			}
 		}
 
 
