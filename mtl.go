@@ -103,9 +103,9 @@ func LoadMtl(r io.Reader) *[]Mtl {
 	var token []byte
 	var res [][]byte
 	for scanner.Scan() {
-		token = bytes.Trim(scanner.Bytes(), " ")
+		token = bytes.Trim(scanner.Bytes(), " \t")
 		switch {
-		case len(token) == 0 || bytes.ContainsRune(token, '#'):
+		case len(token) == 0 || token[0] == '#':
 		// new mtl
 		case string(token[:6]) == "newmtl" && isSpace(token[6]) :
 			if first {
@@ -189,8 +189,8 @@ func LoadMtl(r io.Reader) *[]Mtl {
 		case string(token[:5]) == "map_d" && isSpace(token[5]) :
 			currentMtl.AlphaTextName = string(token[6:])
 		// bump texture
-		case string(token[:7]) == "map_bump" && isSpace(token[7]) :
-			currentMtl.BumpTextName = string(token[8:])
+		case string(token[:8]) == "map_bump" && isSpace(token[8]) :
+			currentMtl.BumpTextName = string(token[9:])
 		case string(token[:4]) == "bump" && isSpace(token[4]) :
 			currentMtl.BumpTextName = string(token[5:])
 		// displacement texture
@@ -221,7 +221,7 @@ func LoadMtl(r io.Reader) *[]Mtl {
 			if i == -1 {
 				currentMtl.UnknownParameter[string(token)] = string(token)
 			} else {
-				currentMtl.UnknownParameter[string(token[:i - 1])] = string(string(token[i:]))
+				currentMtl.UnknownParameter[string(token[:i])] = string(string(token[i + 1:]))
 			}
 		}
 	}
