@@ -79,7 +79,8 @@ func TestParseObj1(t *testing.T) {
 
 
 
-	f, _ := Parse(bytes.NewBufferString(testObj))
+	//f, _ := Parse(bytes.NewBufferString(testObj))
+	f, _ := Parse(bytes.NewBufferString(""))
 
 	df,_ := json.Marshal(f)
 
@@ -97,8 +98,9 @@ func TestParseObj(t *testing.T) {
 
 	file, _ := os.Open("models/googlesf.obj")
 	defer file.Close()
-	f, _ := Parse(bytes.NewBufferString(testObj))
-	f, _ = Parse(file)
+	f, _ := Parse(bytes.NewBufferString(""))
+	//f, _ := Parse(bytes.NewBufferString(testObj))
+	//f, _ = Parse(file)
 
 	df,_ := json.Marshal(f)
 

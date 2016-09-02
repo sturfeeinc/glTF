@@ -113,16 +113,8 @@ func Parse(r io.Reader) (*Obj, error) {
 
 
 		// load mtl
-		case string(token[0:5]) == "mtllib" && isSpace(token[6]) :
-			parseMtlLib(string(token[8:len(token) - 1]))
-			mtlFile, _ := os.Open(string(token[8:len(token) - 1]))
-			defer mtlFile.Close()
-			//obj.Materials= LoadMtl(mtlFile)
-
-
-
-
-
+		case string(token[0:6]) == "mtllib" && isSpace(token[6]) :
+			obj.Materials = mtllib(obj.Materials, string(token[7:]))
 		}
 
 
@@ -186,6 +178,14 @@ func (obj *Obj) parseTriple(token []byte, vi, vni, vti int) (f face){
 	return face{}
 }
 
-func parseMtlLib(name string)  {
-
+func mtllib(mtls *[]Mtl, mtlFileName string) *[]Mtl {
+	println(mtlFileName)
+	mtlFile, err := os.Open(mtlFileName)
+	if err != nil {
+		panic("mtllib file doesn't exist")
+	}
+	defer mtlFile.Close()
+	materials := LoadMtl(mtlFile)
+	mtrls := append(*mtls, *materials...)
+	return &mtrls
 }
