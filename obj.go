@@ -20,6 +20,7 @@ var (
 
 // prototype
 type Obj struct {
+	Name *string
 	Meshes    *[]MeshT
 	Materials *[]Mtl
 	Attribute *AttribT
@@ -118,6 +119,10 @@ func Parse(r io.Reader) (*Obj, error) {
 			for _, name := range res {
 				obj.Materials = mtllib(obj.Materials, string(name))
 			}
+		// object name/id
+		case token[0] == 'o' && isSpace(token[1]) :
+			name := string(token[2:])
+			obj.Name = &name
 		}
 
 
