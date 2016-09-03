@@ -22,25 +22,11 @@ var (
 type Obj struct {
 	Name *string
 	Meshes    *[]MeshT
-	Materials *[]Mtl
+	Shapes    *[]ShapeT
+	Materials *Materials
 	Attribute *AttribT
 
 	vertexIndex vertexIndex
-}
-
-type vertexIndex struct {
-	v_idx, vt_idx, vn_idx int
-}
-
-func (vi *vertexIndex) get() (v_idx, vt_idx, vn_idx int) {
-
-	return
-}
-
-type face struct {
-	v  *int
-	vt *int
-	vn *int
 }
 
 func Parse(r io.Reader) (*Obj, error) {
@@ -63,7 +49,10 @@ func Parse(r io.Reader) (*Obj, error) {
 	//materialMap := map[string]int{}
 	//var material int = -1
 
-	//var shape ShapeT
+	var shape ShapeT
+	var mesh MeshT
+	var currentMaterialId int
+	var index IndexT
 
 
 	scanner := bufio.NewScanner(r)
@@ -101,17 +90,20 @@ func Parse(r io.Reader) (*Obj, error) {
 		// face
 		case token[0] == 'f' && isSpace(token[1]) :
 			res = bytes.Split(token[2:], WSS)
-			vi := len(v) / 3
-			vni := len(vn) / 3
-			vti := len(vt) / 2
-
 			for _, a := range res {
-				f := obj.parseTriple(a, vi, vni, vti)
-				face = append(face, f)
+				index = obj.parseTriple(a)
+				mesh.indices = append(mesh.indices, index)
+				mesh.material_ids = append(mesh.material_ids, currentMaterialId)
+				mesh.num_face_vertices = append(mesh.num_face_vertices, uint(len(res)))
 			}
 		// use mtl
 		case string(token[0:5]) == "usemtl" && isSpace(token[6]) :
-
+			currentMaterialId = obj.Materials.getMaterialId(string(token[7:]))
+			/*if shape != nil {
+				obj.Shapes = append(obj.Shapes, shape)
+			}
+			shape = ShapeT{}
+			shape.mesh.material_ids*/
 
 		// load mtl
 		case string(token[0:6]) == "mtllib" && isSpace(token[6]) :
@@ -176,18 +168,17 @@ static vertex_index parseTriple(const char **token, int vsize, int vnsize,
 
 
 // Parse triples with index offsets: i, i/j/k, i//k, i/j
-func (obj *Obj) parseTriple(token []byte, vi, vni, vti int) (f face){
+func (obj *Obj) parseTriple(token []byte) (f IndexT){
 	/*complicated := bytes.ContainsRune(token, '/')
 	if !complicated {
 		ty := parseInt(string(token))
 		f.v = &ty
 		return
 	}*/
-	return face{}
+	return IndexT{}
 }
 
 func mtllib(mtls *[]Mtl, mtlFileName string) *[]Mtl {
-	println(mtlFileName)
 	mtlFile, err := os.Open(mtlFileName)
 	if err != nil {
 		panic("mtllib file doesn't exist")

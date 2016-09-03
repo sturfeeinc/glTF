@@ -281,3 +281,10 @@ func newMtl() Mtl {
 
 	return mtl
 }
+
+type Materials []Mtl
+
+func (m *Materials) getMaterialId () int {
+
+	return
+}
