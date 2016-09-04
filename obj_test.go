@@ -2,101 +2,80 @@ package obj
 
 import (
 	"testing"
-	"bytes"
-	"encoding/json"
 	"os"
+	"reflect"
 )
-
-var testObj = `# Unit-volume cube with the same texture coordinates on each face.
-#
-# Created by Morgan McGuire and released into the Public Domain on
-# July 16, 2011.
-#
-# http://graphics.cs.williams.edu/data
-
-mtllib default.mtl
-
-v -0.5 0.5 -0.5
-v -0.5 0.5 0.5
-v 0.5 0.5 0.5
-v 0.5 0.5 -0.5
-v -0.5 -0.5 -0.5
-v -0.5 -0.5 0.5
-v 0.5 -0.5 0.5
-v 0.5 -0.5 -0.5
-
-vt 0 1
-vt 0 0
-vt 1 0
-vt 1 1
-
-vn 0 1 0
-vn -1 0 0
-vn 1 0 0
-vn 0 0 -1
-vn 0 0 1
-vn 0 -1 0
-
-g cube
-usemtl default
-
-f -8/-4/-6 -7/-3/-6 -6/-2/-6
-f -8/-4/-6 -6/-2/-6 -5/-1/-6
-f -8/-4/-5 -4/-3/-5 -3/-2/-5
-f -8/-4/-5 -3/-2/-5 -7/-1/-5
-f -6/-4/-4 -2/-3/-4 -1/-2/-4
-f -6/-4/-4 -1/-2/-4 -5/-1/-4
-f -5/-4/-3 -1/-3/-3 -4/-2/-3
-f -5/-4/-3 -4/-2/-3 -8/-1/-3
-f -7/-4/-2 -3/-3/-2 -2/-2/-2
-f -7/-4/-2 -2/-2/-2 -6/-1/-2
-f -3/-4/-1 -4/-3/-1 -1/-2/-1
-f -3/-4/-1 -1/-2/-1 -2/-1/-1
-`
-
-
-
-
-func TestParseObj1(t *testing.T) {
-
-/*	var obj Obj = Obj{}
-
-	mtlFile
-
-	obj.Materials = LoadMtl()*/
-
-
-
-
-	//f, _ := Parse(bytes.NewBufferString(testObj))
-	f, _ := Parse(bytes.NewBufferString(""))
-
-	df,_ := json.Marshal(f)
-
-	if len(df) == 555 {
-
-	}
-	if false {
-		t.Error("parse() return bad result")
-	}
-}
-
-
 
 func TestParseObj(t *testing.T) {
 
-	file, _ := os.Open("models/googlesf.obj")
-	defer file.Close()
-	f, _ := Parse(bytes.NewBufferString(""))
-	//f, _ := Parse(bytes.NewBufferString(testObj))
-	//f, _ = Parse(file)
-
-	df,_ := json.Marshal(f)
-
-	if len(df) == 555 {
-
+	testObj, err := os.Open("models/default.obj")
+	if err != nil {
+		t.Error(err)
 	}
-	if false {
-		t.Error("parse() return bad result")
+	defer testObj.Close()
+
+	indexes := []string{
+		"-8/-4/-6", "-7/-3/-6", "-6/-2/-6",
+		"-8/-4/-6", "-6/-2/-6", "-5/-1/-6",
+		"-8/-4/-5", "-4/-3/-5", "-3/-2/-5",
+		"-8/-4/-5", "-3/-2/-5", "-7/-1/-5",
+		"-6/-4/-4", "-2/-3/-4", "-1/-2/-4",
+		"-6/-4/-4", "-1/-2/-4", "-5/-1/-4",
+		"-5/-4/-3", "-1/-3/-3", "-4/-2/-3",
+		"-5/-4/-3", "-4/-2/-3", "-8/-1/-3",
+		"-7/-4/-2", "-3/-3/-2", "-2/-2/-2",
+		"-7/-4/-2", "-2/-2/-2", "-6/-1/-2",
+		"-3/-4/-1", "-4/-3/-1", "-1/-2/-1",
+		"-3/-4/-1", "-1/-2/-1", "-2/-1/-1",
+	}
+	mesh := MeshT{}
+	n := uint(3)
+	mesh.num_face_vertices = []uint{
+		n, n, n, n, n, n, n, n, n, n, n, n,
+		n, n, n, n, n, n, n, n, n, n, n, n,
+		n, n, n, n, n, n, n, n, n, n, n, n,
+	}
+	mesh.material_ids = []int{
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	}
+	for _, triple := range indexes {
+		index, _ := parseTriple([]byte(triple))
+		mesh.indices = append(mesh.indices, index)
+	}
+
+	mtrls := []Mtl{}
+	testMtl1, err := os.Open("models/default.mtl")
+	if err != nil {
+		t.Error(err)
+	}
+	defer testMtl1.Close()
+	mtls := LoadMtl(testMtl1)
+	mtrls = append(mtrls, *mtls...)
+	testMtl2, err := os.Open("models/default2.mtl")
+	if err != nil {
+		t.Error(err)
+	}
+	defer testMtl2.Close()
+	mtls = LoadMtl(testMtl2)
+	mtrls = append(mtrls, *mtls...)
+
+	shape := ShapeT{}
+	shape.mesh = mesh
+	shapes := []ShapeT{shape}
+
+	want_ := Obj{}
+	want_.Shapes = &shapes
+	want_.Materials = &mtrls
+	want := &want_
+
+	have, err := Parse(testObj)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !reflect.DeepEqual(want, have) {
+		t.Error("ParseObj() return bad result")
 	}
 }

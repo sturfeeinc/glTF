@@ -16,43 +16,32 @@ const (
 var (
 	WSS = []byte{' '} // whitespace separator
 	WT = []byte{'\t'} // table separator
+	SL = []byte{'/'} // table separator
 )
 
 // prototype
 type Obj struct {
 	Name *string
-	Meshes    *[]MeshT
 	Shapes    *[]ShapeT
-	Materials *Materials
+	Materials *[]Mtl
 	Attribute *AttribT
-
-	vertexIndex vertexIndex
 }
 
 func Parse(r io.Reader) (*Obj, error) {
 
-	obj := Obj{}
-
-	obj.Attribute = &AttribT{}
-	obj.Materials = &[]Mtl{}
-	obj.Meshes = &[]MeshT{}
+	var name *string
+	var Attribute *AttribT
+	Materials := []Mtl{}
+	Shapes := []ShapeT{}
 
 	v := [][3]float64{}
 	vn := [][3]float64{}
 	vt := [][2]float64{}
-	face := []face{}
-	//tags := []TagT{}
 
-	//var name string
-
-	// material
-	//materialMap := map[string]int{}
-	//var material int = -1
-
-	var shape ShapeT
-	var mesh MeshT
+	var shape *ShapeT
 	var currentMaterialId int
 	var index IndexT
+	var check, check_ int
 
 
 	scanner := bufio.NewScanner(r)
@@ -90,101 +79,65 @@ func Parse(r io.Reader) (*Obj, error) {
 		// face
 		case token[0] == 'f' && isSpace(token[1]) :
 			res = bytes.Split(token[2:], WSS)
+			check = 0 // nullify check flag
 			for _, a := range res {
-				index = obj.parseTriple(a)
-				mesh.indices = append(mesh.indices, index)
-				mesh.material_ids = append(mesh.material_ids, currentMaterialId)
-				mesh.num_face_vertices = append(mesh.num_face_vertices, uint(len(res)))
+				index, check_ = parseTriple(a)
+				if check != 0 && check != check_ {
+					panic(`"f v//vn v/vt/vn v/vt/vn" error`)
+				}
+				check = check_
+				shape1 := *shape
+				shape1.mesh.indices = append(shape1.mesh.indices, index)
+				shape1.mesh.material_ids = append(shape1.mesh.material_ids, currentMaterialId)
+				shape1.mesh.num_face_vertices = append(shape1.mesh.num_face_vertices, uint(len(res)))
+				shape = &shape1
 			}
 		// use mtl
-		case string(token[0:5]) == "usemtl" && isSpace(token[6]) :
-			currentMaterialId = obj.Materials.getMaterialId(string(token[7:]))
-			/*if shape != nil {
-				obj.Shapes = append(obj.Shapes, shape)
+		case string(token[0:6]) == "usemtl" && isSpace(token[6]) :
+			if shape != nil {
+				Shapes = append(Shapes, *shape)
 			}
-			shape = ShapeT{}
-			shape.mesh.material_ids*/
-
+			currentMaterialId = getMaterialId(&Materials, string(token[7:]))
+			shape1 := ShapeT{}
+			shape1.mesh = MeshT{}
+			shape1.mesh.indices = []IndexT{}
+			shape1.mesh.material_ids = []int{}
+			shape1.mesh.num_face_vertices = []uint{}
+			shape = &shape1
 		// load mtl
 		case string(token[0:6]) == "mtllib" && isSpace(token[6]) :
 			res := bytes.Split(token[7:], WSS)
 			for _, name := range res {
-				obj.Materials = mtllib(obj.Materials, string(name))
+				mtrls := mtllib(string(name))
+				Materials = append(Materials, *mtrls...)
 			}
 		// object name/id
 		case token[0] == 'o' && isSpace(token[1]) :
-			name := string(token[2:])
-			obj.Name = &name
+			str := string(token[2:])
+			name = &str
+		default:
+			//println(string(token))
 		}
-
-
-
 	}
 
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
-
+	Shapes = append(Shapes, *shape)
+	obj := Obj{}
+	obj.Name = name
+	obj.Attribute = Attribute
+	obj.Materials = &Materials
+	obj.Shapes = &Shapes
 
 	return &obj, nil
 }
 
-
-
-/*
-
-static vertex_index parseTriple(const char **token, int vsize, int vnsize,
-                                int vtsize) {
-  vertex_index vi(-1);
-
-  vi.v_idx = fixIndex(atoi((*token)), vsize);
-  (*token) += strcspn((*token), "/ \t\r");
-  if ((*token)[0] != '/') {
-    return vi;
-  }
-  (*token)++;
-
-  // i//k
-  if ((*token)[0] == '/') {
-    (*token)++;
-    vi.vn_idx = fixIndex(atoi((*token)), vnsize);
-    (*token) += strcspn((*token), "/ \t\r");
-    return vi;
-  }
-
-  // i/j/k or i/j
-  vi.vt_idx = fixIndex(atoi((*token)), vtsize);
-  (*token) += strcspn((*token), "/ \t\r");
-  if ((*token)[0] != '/') {
-    return vi;
-  }
-
-  // i/j/k
-  (*token)++;  // skip '/'
-  vi.vn_idx = fixIndex(atoi((*token)), vnsize);
-  (*token) += strcspn((*token), "/ \t\r");
-  return vi;
-}*/
-
-
-// Parse triples with index offsets: i, i/j/k, i//k, i/j
-func (obj *Obj) parseTriple(token []byte) (f IndexT){
-	/*complicated := bytes.ContainsRune(token, '/')
-	if !complicated {
-		ty := parseInt(string(token))
-		f.v = &ty
-		return
-	}*/
-	return IndexT{}
-}
-
-func mtllib(mtls *[]Mtl, mtlFileName string) *[]Mtl {
+func mtllib(mtlFileName string) *[]Mtl {
 	mtlFile, err := os.Open(mtlFileName)
 	if err != nil {
 		panic("mtllib file doesn't exist")
 	}
 	defer mtlFile.Close()
-	materials := LoadMtl(mtlFile)
-	mtrls := append(*mtls, *materials...)
-	return &mtrls
+	return LoadMtl(mtlFile)
 }

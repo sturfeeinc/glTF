@@ -282,9 +282,23 @@ func newMtl() Mtl {
 	return mtl
 }
 
-type Materials []Mtl
+func getMaterialId (m *[]Mtl, name string) (i int) {
+	var mtl Mtl
+	for i, mtl = range *m {
+		if mtl.Name == name {
+			return i
+		}
+	}
+	if len(*m) == 0 {
+		mtl = newMtl()
+		mtls := []Mtl{mtl}
+		m = &mtls
+	}
+	return 0
+}
 
-func (m *Materials) getMaterialId () int {
-
-	return
+func defaultMtl() Mtl {
+	mtl := newMtl()
+	mtl.Name = "default"
+	return mtl
 }
