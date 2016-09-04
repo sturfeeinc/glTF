@@ -9,7 +9,7 @@ typedef struct {
 */
 
 type IndexT struct {
-	VertexIndex   int
-	NormalIndex   int
-	TexcoordIndex int
+	VertexIndex   *int
+	TexcoordIndex *int
+	NormalIndex   *int
 }
