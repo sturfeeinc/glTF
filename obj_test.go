@@ -7,17 +7,6 @@ import (
 	"os"
 )
 
-func TestParseTriple(t *testing.T) {
-
-
-
-	if false {
-		t.Error("it's not possible")
-	}
-}
-
-
-
 var testObj = `# Unit-volume cube with the same texture coordinates on each face.
 #
 # Created by Morgan McGuire and released into the Public Domain on

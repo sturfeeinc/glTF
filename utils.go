@@ -3,6 +3,7 @@ package obj
 import (
 	"strings"
 	"strconv"
+	"bytes"
 )
 
 func parseRGB(arr [][]byte) [3]float64 {
@@ -35,4 +36,43 @@ func isSpace(b byte) bool {
 	return b == WS || b == T
 }
 
+// Parse triples with index offsets: i, i/j/k, i//k, i/j
+func parseTriple(token []byte) (i IndexT, check int){
+	count := bytes.Count(token, SL)
+
+	if count == 0 {
+		// v
+		v := parseInt(string(token))
+		i.VertexIndex = &v
+		return i, 1
+	}
+	res := bytes.Split(token, SL)
+	v := parseInt(string(res[0]))
+	i.VertexIndex = &v
+	if count == 1 {
+		// v/vt
+		vt := parseInt(string(res[1]))
+		i.TexcoordIndex = &vt
+		return i, 2
+	}
+	if len(res[1]) == 0 {
+		// v//vn
+		vn := parseInt(string(res[2]))
+		i.NormalIndex = &vn
+		return i, 3
+	}
+	// v/vt/vn
+	vt := parseInt(string(res[1]))
+	i.TexcoordIndex = &vt
+	vn := parseInt(string(res[2]))
+	i.NormalIndex = &vn
+	return i, 4
+}
+
+func sacralSense(){
+	complicated := bytes.ContainsRune([]byte{}, '/')
+	if !complicated {
+		return
+	}
+}
 

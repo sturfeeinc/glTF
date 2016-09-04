@@ -33,6 +33,57 @@ func TestParseInt (t *testing.T) {
 	}
 }
 
+func TestParseTriple (t *testing.T) {
+	have, check := parseTriple([]byte("1234"))
+	if check != 1 {
+		print("parseTriple returns a bad result. We expected 1 (v) but got ")
+		println(check)
+		t.Error("parseTriple")
+	}
+	v := 1234
+	want := IndexT{&v, nil, nil}
+	if !reflect.DeepEqual(want, have) {
+		t.Error("parseTriple returns a bad result for 1 (v)")
+	}
+	have, check = parseTriple([]byte("5432/4321"))
+	if check != 2 {
+		print("parseTriple returns a bad result. We expected 2 (v/vt) but got ")
+		println(check)
+		t.Error("parseTriple")
+	}
+	v = 5432
+	vt := 4321
+	want = IndexT{&v, &vt, nil}
+	if !reflect.DeepEqual(want, have) {
+		t.Error("parseTriple returns a bad result for 2 (v/vt)")
+	}
+	have, check = parseTriple([]byte("6543//3456"))
+	if check != 3 {
+		print("parseTriple returns a bad result. We expected 3 (v//vn) but got ")
+		println(check)
+		t.Error("parseTriple")
+	}
+	v = 6543
+	vn := 3456
+	want = IndexT{&v, nil, &vn}
+	if !reflect.DeepEqual(want, have) {
+		t.Error("parseTriple returns a bad result for 3 (v//vn)")
+	}
+	have, check = parseTriple([]byte("3456/6543/9876"))
+	if check != 4 {
+		print("parseTriple returns a bad result. We expected 4 (v/vt/vn) but got ")
+		println(check)
+		t.Error("parseTriple")
+	}
+	v = 3456
+	vt = 6543
+	vn = 9876
+	want = IndexT{&v, &vt, &vn}
+	if !reflect.DeepEqual(want, have) {
+		t.Error("parseTriple returns a bad result for 4 (v/vt/vn)")
+	}
+}
+
 func DEBUG(i interface{})  {
 	fmt.Printf("%f\n", i)
 	fmt.Printf("%v\n", i)
