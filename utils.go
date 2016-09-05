@@ -37,9 +37,9 @@ func isSpace(b byte) bool {
 }
 
 // Parse triples with index offsets: i, i/j/k, i//k, i/j
-func parseTriple(token []byte) (i IndexT, check int){
+func parseTriple(token []byte) (IndexT, int){
 	count := bytes.Count(token, SL)
-
+	i := IndexT{}
 	if count == 0 {
 		// v
 		v := parseInt(string(token))
@@ -67,6 +67,27 @@ func parseTriple(token []byte) (i IndexT, check int){
 	vn := parseInt(string(res[2]))
 	i.NormalIndex = &vn
 	return i, 4
+}
+
+
+// Parse triples with index offsets: i, i/j
+func parseCouple(token []byte) (IndexT, int){
+	count := bytes.Count(token, SL)
+	i := IndexT{}
+
+	if count == 0 {
+		// v
+		v := parseInt(string(token))
+		i.VertexIndex = &v
+		return i, 1
+	}
+	// v/vt
+	res := bytes.Split(token, SL)
+	v := parseInt(string(res[0]))
+	i.VertexIndex = &v
+	vt := parseInt(string(res[1]))
+	i.TexcoordIndex = &vt
+	return i, 2
 }
 
 func sacralSense(){

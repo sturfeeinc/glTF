@@ -10,4 +10,6 @@ typedef struct {
 type ShapeT struct {
 	Name string
 	mesh MeshT
+	SmoothingGroup float64
+	Lines *[]Line
 }

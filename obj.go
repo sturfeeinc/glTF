@@ -92,6 +92,29 @@ func Parse(r io.Reader) (*Obj, error) {
 				shape1.mesh.num_face_vertices = append(shape1.mesh.num_face_vertices, uint(len(res)))
 				shape = &shape1
 			}
+		// line
+		case token[0] == 'l' && isSpace(token[1]) :
+			res = bytes.Split(token[2:], WSS)
+			check = 0 // nullify check flag
+			line := Line{}
+			line.indices = []IndexT{}
+			for _, a := range res {
+				index, check_ = parseCouple(a)
+				if check != 0 && check != check_ {
+					panic(`"f v//vn v/vt/vn v/vt/vn" error`)
+				}
+				check = check_
+				line.indices = append(line.indices, index)
+			}
+			shape1 := *shape
+			if shape1.Lines == nil {
+				lines := []Line{}
+				shape1.Lines = &lines
+			}
+			lines := *shape1.Lines
+			lines = append(lines, line)
+			shape1.Lines = &lines
+			shape = &shape1
 		// use mtl
 		case string(token[0:6]) == "usemtl" && isSpace(token[6]) :
 			if shape != nil {
@@ -111,6 +134,15 @@ func Parse(r io.Reader) (*Obj, error) {
 				mtrls := mtllib(string(name))
 				Materials = append(Materials, *mtrls...)
 			}
+		// smoothing group
+		case token[0] == 's' && isSpace(token[1]) :
+			shape1 := *shape
+			if token[2] == 'o' &&  token[3] == 'f' &&  token[4] == 'f' {
+				shape1.SmoothingGroup = 0.
+			} else {
+				shape1.SmoothingGroup = parseFloat(string(token[2:]))
+			}
+			shape = &shape1
 		// object name/id
 		case token[0] == 'o' && isSpace(token[1]) :
 			str := string(token[2:])

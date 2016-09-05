@@ -86,5 +86,5 @@ func TestParseTriple (t *testing.T) {
 
 func DEBUG(i interface{})  {
 	fmt.Printf("%f\n", i)
-	fmt.Printf("%v\n", i)
+	//fmt.Printf("%v\n", i)
 }
