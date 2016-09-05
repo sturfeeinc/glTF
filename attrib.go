@@ -10,7 +10,7 @@ typedef struct {
 */
 
 type AttribT struct {
-	Vertices  []float64		// 'v'
-	Normals   []float64		// 'vn'
-	Texcoords []float64		// 'vt'
+	Vertices  [][3]float64	// 'v'
+	Normals   [][3]float64	// 'vn'
+	Texcoords [][2]float64	// 'vt'
 }

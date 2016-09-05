@@ -45,6 +45,32 @@ func TestParseObj(t *testing.T) {
 		mesh.indices = append(mesh.indices, index)
 	}
 
+	attr := AttribT{}
+	attr.Vertices = [][3]float64{
+		[3]float64{-0.5, 0.5, -0.5},
+		[3]float64{-0.5, 0.5, 0.5},
+		[3]float64{0.5, 0.5, 0.5},
+		[3]float64{0.5, 0.5, -0.5},
+		[3]float64{-0.5, -0.5, -0.5},
+		[3]float64{-0.5, -0.5, 0.5},
+		[3]float64{0.5, -0.5, 0.5},
+		[3]float64{0.5, -0.5, -0.5},
+	}
+	attr.Texcoords = [][2]float64{
+		[2]float64{0., 1.},
+		[2]float64{0., 0.},
+		[2]float64{1., 0.},
+		[2]float64{1., 1.},
+	}
+	attr.Normals = [][3]float64{
+		[3]float64{0, 1, 0},
+		[3]float64{-1, 0, 0},
+		[3]float64{1, 0, 0},
+		[3]float64{0, 0, -1},
+		[3]float64{0, 0, 1},
+		[3]float64{0, -1, 0},
+	}
+
 	mtrls := []Mtl{}
 	testMtl1, err := os.Open("models/default.mtl")
 	if err != nil {
@@ -68,6 +94,7 @@ func TestParseObj(t *testing.T) {
 	want_ := Obj{}
 	want_.Shapes = &shapes
 	want_.Materials = &mtrls
+	want_.Attribute = &attr
 	want := &want_
 
 	have, err := Parse(testObj)

@@ -30,7 +30,7 @@ type Obj struct {
 func Parse(r io.Reader) (*Obj, error) {
 
 	var name *string
-	var Attribute *AttribT
+	Attribute := AttribT{}
 	Materials := []Mtl{}
 	Shapes := []ShapeT{}
 
@@ -124,9 +124,12 @@ func Parse(r io.Reader) (*Obj, error) {
 		panic(err)
 	}
 	Shapes = append(Shapes, *shape)
+	Attribute.Vertices = v
+	Attribute.Texcoords = vt
+	Attribute.Normals = vn
 	obj := Obj{}
 	obj.Name = name
-	obj.Attribute = Attribute
+	obj.Attribute = &Attribute
 	obj.Materials = &Materials
 	obj.Shapes = &Shapes
 
