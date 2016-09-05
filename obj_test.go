@@ -1,4 +1,4 @@
-package obj
+package obj3d
 
 import (
 	"testing"
@@ -101,8 +101,6 @@ func TestParseObj(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	DEBUG(want)
-	DEBUG(have)
 	if !reflect.DeepEqual(want, have) {
 		t.Error("ParseObj() return bad result")
 	}

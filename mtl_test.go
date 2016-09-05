@@ -1,4 +1,4 @@
-package obj
+package obj3d
 
 import (
 	"testing"
