@@ -171,7 +171,7 @@ func (m *material)useMaterial() int {
 
 // alias for strconv.ParseFloat with exception
 func ParseFloat(s string) float64 {
-	f, err := strconv.ParseFloat(s, bitSize64)
+	f, err := strconv.ParseFloat(strings.Trim(s, " "), bitSize64)
 	if err != nil {
 		panic(err)
 	}

@@ -62,74 +62,86 @@ func Parse1() {
 
 }
 
-func parse2(r io.Reader) {
+func parse2(r io.Reader) flow {
 
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 	var line []byte
-	var res [][]byte
+	var res [][][]byte
+	var arr [][]byte
 	f := flow{}
 	f.currentIndexArray = &[]int{}
 	f.vertexCache = []int{}
 	f.positions = []float64{}
 	f.normals = []float64{}
 	f.uvs = []float64{}
+	f.materialGroups = map[string][]int{}
 	for scanner.Scan() {
 		line = bytes.Trim(scanner.Bytes(), " ")
 		switch {
 		case len(line) == 0 || bytes.ContainsRune(line, '#'):
-		case len(vertexRegex.FindAll(line, 0)) != 0 :
-			res = vertexRegex.FindAll(line, 0)
+		case vertexRegex.Match(line) :
+			res = vertexRegex.FindAllSubmatch(line, -1)
 			// string() booooO!!!!
 			f.positions = append(f.positions,
-				ParseFloat(string(res[0])),
-				ParseFloat(string(res[1])),
-				ParseFloat(string(res[2])),
+				ParseFloat(string(res[0][1])),
+				ParseFloat(string(res[0][2])),
+				ParseFloat(string(res[0][3])),
 			)
-		case len(normalRegex.FindAll(line, 0)) != 0 :
-			res = normalRegex.FindAll(line, 0)
-			nx, ny, nz := Cartesian3Normalize(ParseFloat(string(res[0])), ParseFloat(string(res[1])), ParseFloat(string(res[2])))
+		case normalRegex.Match(line) :
+			res = normalRegex.FindAllSubmatch(line, -1)
+			nx, ny, nz := Cartesian3Normalize(
+				ParseFloat(string(res[0][1])),
+				ParseFloat(string(res[0][2])),
+				ParseFloat(string(res[0][3])),
+			)
 			f.normals = append(f.normals, nx, ny, nz)
-		case len(uvRegex.FindAll(line, 0)) != 0 :
-			res = uvRegex.FindAll(line, 0)
+		case uvRegex.Match(line) :
+			res = uvRegex.FindAllSubmatch(line, -1)
 			f.uvs = append(f.uvs,
-				ParseFloat(string(res[0])),
-				ParseFloat(string(res[1])),
+				ParseFloat(string(res[0][1])),
+				ParseFloat(string(res[0][2])),
 			)
-		case len(face1Regex.FindAll(line, 0)) != 0 :
-			res = face1Regex.FindAll(line, 0)
+		case face1Regex.Match(line) :
+			res = face1Regex.FindAllSubmatch(line, -1)
+			arr = reformatSubArray(res)
 			f.addFace(
-				ParseInt(string(res[1])), ParseInt(string(res[1])), nil, nil,
-				ParseInt(string(res[2])), ParseInt(string(res[2])), nil, nil,
-				ParseInt(string(res[3])), ParseInt(string(res[3])), nil, nil,
-				ParseInt(string(res[4])), ParseInt(string(res[4])), nil, nil,
+				ParseInt(string(arr[0])), ParseInt(string(arr[0])), nil, nil,
+				ParseInt(string(arr[1])), ParseInt(string(arr[1])), nil, nil,
+				ParseInt(string(arr[2])), ParseInt(string(arr[2])), nil, nil,
+				ParseInt(string(arr[3])), ParseInt(string(arr[3])), nil, nil,
 			)
-		case len(face2Regex.FindAll(line, 0)) != 0 :
-			res = face2Regex.FindAll(line, 0)
+		case face2Regex.Match(line) :
+			res = face2Regex.FindAllSubmatch(line, -1)
+			arr = reformatSubArray(res)
 			f.addFace(
-				ParseInt(string(res[1])), ParseInt(string(res[2])), ParseInt(string(res[3])), nil,
-				ParseInt(string(res[4])), ParseInt(string(res[5])), ParseInt(string(res[6])), nil,
-				ParseInt(string(res[7])), ParseInt(string(res[8])), ParseInt(string(res[9])), nil,
-				ParseInt(string(res[10])), ParseInt(string(res[11])), ParseInt(string(res[12])), nil,
+				ParseInt(string(arr[0])), ParseInt(string(arr[1])), ParseInt(string(arr[2])), nil,
+				ParseInt(string(arr[3])), ParseInt(string(arr[4])), ParseInt(string(arr[5])), nil,
+				ParseInt(string(arr[6])), ParseInt(string(arr[7])), ParseInt(string(arr[8])), nil,
+				ParseInt(string(arr[9])), ParseInt(string(arr[10])), ParseInt(string(arr[11])), nil,
 			)
-		case len(face3Regex.FindAll(line, 0)) != 0 :
-			res = face3Regex.FindAll(line, 0)
+		case face3Regex.Match(line) :
+			res = face3Regex.FindAllSubmatch(line, -1)
+			arr = reformatSubArray(res)
+			println(string(line))
+			println(len(res[0]))
 			f.addFace(
-				ParseInt(string(res[1])), ParseInt(string(res[2])), ParseInt(string(res[3])), ParseInt(string(res[4])),
-				ParseInt(string(res[5])), ParseInt(string(res[6])), ParseInt(string(res[7])), ParseInt(string(res[8])),
-				ParseInt(string(res[9])), ParseInt(string(res[10])), ParseInt(string(res[11])), ParseInt(string(res[12])),
-				ParseInt(string(res[13])), ParseInt(string(res[14])), ParseInt(string(res[15])), ParseInt(string(res[16])),
+				ParseInt(string(arr[0])), ParseInt(string(arr[1])), ParseInt(string(arr[2])), ParseInt(string(arr[3])),
+				ParseInt(string(arr[4])), ParseInt(string(arr[5])), ParseInt(string(arr[6])), ParseInt(string(arr[7])),
+				ParseInt(string(arr[8])), ParseInt(string(arr[9])), ParseInt(string(arr[10])), ParseInt(string(arr[11])),
+				ParseInt(string(arr[12])), ParseInt(string(arr[13])), ParseInt(string(arr[14])), ParseInt(string(arr[15])),
 			)
-		case len(face4Regex.FindAll(line, 0)) != 0 :
-			res = face4Regex.FindAll(line, 0)
+		case face4Regex.Match(line) :
+			res = face4Regex.FindAllSubmatch(line, -1)
+			arr = reformatSubArray(res)
 			f.addFace(
-				ParseInt(string(res[1])), ParseInt(string(res[2])), nil, ParseInt(string(res[3])),
-				ParseInt(string(res[4])), ParseInt(string(res[5])), nil, ParseInt(string(res[6])),
-				ParseInt(string(res[7])), ParseInt(string(res[8])), nil, ParseInt(string(res[9])),
-				ParseInt(string(res[10])), ParseInt(string(res[11])), nil, ParseInt(string(res[12])),
+				ParseInt(string(arr[0])), ParseInt(string(arr[1])), nil, ParseInt(string(arr[2])),
+				ParseInt(string(arr[3])), ParseInt(string(arr[4])), nil, ParseInt(string(arr[5])),
+				ParseInt(string(arr[6])), ParseInt(string(arr[7])), nil, ParseInt(string(arr[8])),
+				ParseInt(string(arr[9])), ParseInt(string(arr[10])), nil, ParseInt(string(arr[11])),
 			)
-		case len(usemtlRegex.FindAll(line, 0)) != 0 :
-			line = bytes.Trim(scanner.Bytes()[7:], " ")
+		case usemtlRegex.Match(line) :
+			line = bytes.Trim(line[7:], " ")
 			f.useMaterial(string(line))
 		}
 	}
@@ -137,7 +149,7 @@ func parse2(r io.Reader) {
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
-
+	return f
 }
 
 type flow struct {
@@ -271,4 +283,29 @@ func (f *flow) useDefaultMaterial() {
 	f.useMaterial(defaultMaterial);
 }
 
+/*
+f -8/-4/-6 -7/-3/-6 -6/-2/-6
+ -8/-4/-6
+-8
+-4
+-6
+ -7/-3/-6
+-7
+-3
+-6
+ -6/-2/-6
+-6
+-2
+-6
+*/
+func reformatSubArray(a [][][]byte) [][]byte {
+	arr := [][]byte{}
+	a = a[1:]
+
+	for i := 0; i < len(a); i += 4 {
+		arr = append(arr, arr[i + 1], arr[i + 2], arr[i + 3])
+	}
+
+	return arr
+}
 
