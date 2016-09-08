@@ -8,8 +8,8 @@ typedef struct {
 */
 
 type ShapeT struct {
-	Name string
-	mesh MeshT
+	Name           string
+	Mesh           MeshT
 	SmoothingGroup float64
-	Lines *[]Line
+	Lines          *[]Line
 }

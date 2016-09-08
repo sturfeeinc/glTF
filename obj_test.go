@@ -30,19 +30,19 @@ func TestParseObj(t *testing.T) {
 	}
 	mesh := MeshT{}
 	n := uint(3)
-	mesh.num_face_vertices = []uint{
+	mesh.NumFaceVertices = []uint{
 		n, n, n, n, n, n, n, n, n, n, n, n,
 		n, n, n, n, n, n, n, n, n, n, n, n,
 		n, n, n, n, n, n, n, n, n, n, n, n,
 	}
-	mesh.material_ids = []int{
+	mesh.MaterialIds = []int{
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	}
 	for _, triple := range indexes {
 		index, _ := parseTriple([]byte(triple))
-		mesh.indices = append(mesh.indices, index)
+		mesh.Indices = append(mesh.Indices, index)
 	}
 
 	attr := AttribT{}
@@ -88,7 +88,7 @@ func TestParseObj(t *testing.T) {
 	mtrls = append(mtrls, *mtls...)
 
 	shape := ShapeT{}
-	shape.mesh = mesh
+	shape.Mesh = mesh
 	shapes := []ShapeT{shape}
 
 	want_ := Obj{}

@@ -13,10 +13,10 @@ typedef struct {
 */
 
 type MeshT struct {
-	indices           []IndexT
-	num_face_vertices []uint // The number of vertices per
-							 // face. 3 = polygon, 4 = quad,
-							 // ... Up to 255.
-	material_ids      []int  // per-face material ID
-	tags              []TagT
+	Indices         []IndexT
+	NumFaceVertices []uint // The number of vertices per
+                           // face. 3 = polygon, 4 = quad,
+                           // ... Up to 255.
+	MaterialIds     []int  // per-face material ID
+	Tags            []TagT
 }

@@ -87,9 +87,9 @@ func Parse(r io.Reader) (*Obj, error) {
 				}
 				check = check_
 				shape1 := *shape
-				shape1.mesh.indices = append(shape1.mesh.indices, index)
-				shape1.mesh.material_ids = append(shape1.mesh.material_ids, currentMaterialId)
-				shape1.mesh.num_face_vertices = append(shape1.mesh.num_face_vertices, uint(len(res)))
+				shape1.Mesh.Indices = append(shape1.Mesh.Indices, index)
+				shape1.Mesh.MaterialIds = append(shape1.Mesh.MaterialIds, currentMaterialId)
+				shape1.Mesh.NumFaceVertices = append(shape1.Mesh.NumFaceVertices, uint(len(res)))
 				shape = &shape1
 			}
 		// line
@@ -97,14 +97,14 @@ func Parse(r io.Reader) (*Obj, error) {
 			res = bytes.Split(token[2:], WSS)
 			check = 0 // nullify check flag
 			line := Line{}
-			line.indices = []IndexT{}
+			line.Indices = []IndexT{}
 			for _, a := range res {
 				index, check_ = parseCouple(a)
 				if check != 0 && check != check_ {
 					panic(`"f v//vn v/vt/vn v/vt/vn" error`)
 				}
 				check = check_
-				line.indices = append(line.indices, index)
+				line.Indices = append(line.Indices, index)
 			}
 			shape1 := *shape
 			if shape1.Lines == nil {
@@ -122,10 +122,10 @@ func Parse(r io.Reader) (*Obj, error) {
 			}
 			currentMaterialId = getMaterialId(&Materials, string(token[7:]))
 			shape1 := ShapeT{}
-			shape1.mesh = MeshT{}
-			shape1.mesh.indices = []IndexT{}
-			shape1.mesh.material_ids = []int{}
-			shape1.mesh.num_face_vertices = []uint{}
+			shape1.Mesh = MeshT{}
+			shape1.Mesh.Indices = []IndexT{}
+			shape1.Mesh.MaterialIds = []int{}
+			shape1.Mesh.NumFaceVertices = []uint{}
 			shape = &shape1
 		// load mtl
 		case string(token[0:6]) == "mtllib" && isSpace(token[6]) :
