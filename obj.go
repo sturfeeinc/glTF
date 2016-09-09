@@ -34,9 +34,9 @@ func Parse(r io.Reader) (*Obj, error) {
 	Materials := []Mtl{}
 	Shapes := []ShapeT{}
 
-	v := [][3]float64{}
-	vn := [][3]float64{}
-	vt := [][2]float64{}
+	v := []float64{}
+	vn := []float64{}
+	vt := []float64{}
 
 	var shape *ShapeT
 	var currentMaterialId int
@@ -56,26 +56,26 @@ func Parse(r io.Reader) (*Obj, error) {
 		// vertex
 		case token[0] == 'v' && isSpace(token[1]) :
 			res = bytes.Split(token[2:], WSS)
-			v = append(v, [3]float64{
+			v = append(v,
 				parseFloat(string(res[0])),
 				parseFloat(string(res[1])),
 				parseFloat(string(res[2])),
-			})
+			)
 		// normal
 		case token[0] == 'v' && token[1] == 'n' && isSpace(token[2]) :
 			res = bytes.Split(token[3:], WSS)
-			vn = append(vn, [3]float64{
+			vn = append(vn,
 				parseFloat(string(res[0])),
 				parseFloat(string(res[1])),
 				parseFloat(string(res[2])),
-			})
+			)
 		// texcoord
 		case token[0] == 'v' && token[1] == 't' && isSpace(token[2]) :
 			res = bytes.Split(token[3:], WSS)
-			vt = append(vt, [2]float64{
+			vt = append(vt,
 				parseFloat(string(res[0])),
 				parseFloat(string(res[1])),
-			})
+			)
 		// face
 		case token[0] == 'f' && isSpace(token[1]) :
 			res = bytes.Split(token[2:], WSS)
