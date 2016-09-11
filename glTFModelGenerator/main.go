@@ -84,7 +84,7 @@ func main() {
 		generate(o.Name())
 	}
 
-	cmd := exec.Command("go", "fmt", "github.com/sturfeeinc/JsonModelGen/exp/output/")
+	cmd := exec.Command("go", "fmt", "github.com/sturfeeinc/jlTF")
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	var stdErr bytes.Buffer
@@ -200,7 +200,7 @@ func generate(fileName string) {
 
 
 	fileName = getTypeName(fileName)
-	fileName = "./output/" + strings.ToLower(string(fileName[0])) + fileName[1:] + ".go"
+	fileName = "../" + strings.ToLower(string(fileName[0])) + fileName[1:] + ".go"
 
 	ioutil.WriteFile(fileName, []byte(p), 0777)
 
