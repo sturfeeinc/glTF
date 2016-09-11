@@ -1,13 +1,15 @@
 import json
 from os import listdir
 from os.path import isfile, join
-onlyfiles = [f for f in listdir("shemas") if isfile(join("shemas", f))]
 
+schemasDir = "../shemas/"
+
+onlyfiles = [f for f in listdir(schemasDir) if isfile(join(schemasDir, f))]
 
 properties = dict()
 
 for fileName in onlyfiles:
-    schema = open("shemas/" + fileName)
+    schema = open(schemasDir + fileName)
     data = json.loads(schema.read())
     for name in data:
         if name == "dependencies":
