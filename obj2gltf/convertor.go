@@ -3,10 +3,11 @@ package obj2gltf
 import (
 	"io"
 	"github.com/sturfeeinc/obj3d"
-	"github.com/sturfeeinc/jlTF/model"
+	"github.com/sturfeeinc/jlTF"
 	"encoding/json"
 	"os"
 	"fmt"
+	"encoding/binary"
 )
 
 func Convert(r io.Reader) ([]byte, error) {
@@ -33,62 +34,35 @@ println(string(raw))
 	return raw, nil
 }
 
-func objToglTF(o *obj3d.Obj) (*model.GlTF, error) {
+func objToglTF(o *obj3d.Obj) (*glTF.GlTF, error) {
 
 
 
 	fmt.Printf("%f\n", o)
-	gltf := model.GlTF{}
+	gltf := newjlTF()
 	gltf.Scene = "defaultScenes"
-	scenes := map[string]*model.Scene{}
-	gltf.Scenes = scenes
-	scene := model.Scene{}
-	scenes["defaultScenes"] = &scene
-	scene.Nodes = []*model.GlTFid{}
-	nodeName := model.GlTFid("node_1")
-	scene.Nodes = append(scene.Nodes, &nodeName)
-	nodes :=  map[string]*model.Node{}
-	gltf.Nodes = nodes
-	node := model.Node{}
-	node.Name = o.Name
-	meshes_ := []*model.GlTFid{}
-	node.Meshes = meshes_
-
-	nodes["node_1"] = &node
-
-	meshName := model.GlTFid("mesh1_1")
-	node.Meshes = append(meshes_, &meshName)
-	mesh := model.Mesh{}
-
-	primitives := []*model.MeshPrimitive{}
-	mesh.Primitives = primitives
-	primitive := model.MeshPrimitive{}
-	primitive.Attributes = map[string]*model.MeshPrimitiveAttribute{}
-	attr := model.MeshPrimitiveAttribute("accessor_id0")
-	primitive.Attributes["POSITION"] = &attr
-	meshes := map[string]*model.Mesh{}
-	gltf.Meshes = meshes
-	meshes["mesh1_1"] = &mesh
-
-	mesh.Primitives = append(mesh.Primitives, &primitive)
-
-	// accessors
-	gltf.Accessors = map[string]*model.Accessor{}
-	accessor := model.Accessor{}
-	gltf.Accessors["accessor_id0"] = &accessor
-
-	// bufferViews
-	gltf.BufferViews = map[string]*model.BufferView{}
-	bufferView := model.BufferView{}
-	gltf.BufferViews["bufferViewWithVertices_id"] = &bufferView
-
-	// buffer
-	gltf.Buffers = map[string]*model.Buffer{}
-	buffer := model.Buffer{}
-	gltf.Buffers["buffer_id"] = &buffer
+	scene := glTF.Scene{}
+	scene.Nodes = []glTF.GlTFid{glTF.GlTFid("node_1")}
+	node := glTF.Node{}
+	node.Name = *o.Name
+	node.Meshes = []glTF.GlTFid{}
+	node.Meshes = append(node.Meshes, glTF.GlTFid("mesh1_1"))
+	mesh := glTF.Mesh{}
+	mesh.Primitives = []glTF.MeshPrimitive{}
+	primitive := glTF.MeshPrimitive{}
+	primitive.Attributes = map[string]glTF.MeshPrimitiveAttribute{}
+	primitive.Attributes["POSITION"] = glTF.MeshPrimitiveAttribute("accessor_id0")
+	primitive.Indices = glTF.GlTFid("accessor_id1")
+	mesh.Primitives = append(mesh.Primitives, primitive)
 
 
-	accessor.BufferView = model.GlTFid("bufferViewWithVertices_id")
+
+
+
+
+
+
+
 
 
 	file, err := os.OpenFile("verticies.bin", os.O_CREATE | os.O_RDWR, 0777)
@@ -97,27 +71,82 @@ func objToglTF(o *obj3d.Obj) (*model.GlTF, error) {
 	}
 
 	data := fToB(&o.Attribute.Vertices)
-	n, err := file.Write(*data)
+	n1, err := file.Write(*data)
 	if err != nil {
 		println(err.Error())
 	}
-	offset := 0
-	accessor.ByteOffset = &offset
+	shape := *o.Shapes
+	data1 := handle(shape[0].Mesh.Indices)
+	binary.Write(file, binary.LittleEndian, data1)
 
-	t := 5126
-	accessor.ComponentType = &t
+	// accessors
+	accessor := glTF.Accessor{}
+	accessor.BufferView = glTF.GlTFid("bufferViewWithVertices_id")
+	accessor.ByteOffset = 0
+	accessor.ComponentType = 5126
+	accessor.Count = 1
+	accessor.Type = "SCALAR"
+	gltf.Accessors["accessor_id0"] = accessor
+	accessor = glTF.Accessor{}
+	accessor.BufferView = glTF.GlTFid("bufferViewWithVertices_id")
+	accessor.ByteOffset = 0
+	accessor.ComponentType = 5126
+	accessor.Count = 1
+	accessor.Type = "SCALAR"
+	gltf.Accessors["accessor_id1"] = accessor
 
-	t1 := 1
-	accessor.Count = &t1
-	ssss := "SCALAR"
-	accessor.Type = &ssss
+	// bufferViews
+	bufferView := glTF.BufferView{}
+	bufferView.Buffer = glTF.GlTFid("buffer_id")
+	bufferView.ByteOffset = 0
+	bufferView.ByteLength = n1
 
-	bufferView.ByteOffset = &offset
-	bufferView.ByteLength = &n
-	bufM := model.GlTFid("buffer_id")
-	bufferView.Buffer = bufM
-	buffer.ByteLength = &n
-	uri :=  "verticies.bin"
-	buffer.Uri = &uri
+	// buffer
+	buffer := glTF.Buffer{}
+	buffer.ByteLength = n1
+	buffer.Uri = "verticies.bin"
+	buffer.Type = "arraybuffer"
+
+	gltf.Scenes["defaultScenes"] = scene
+	gltf.Nodes["node_1"] = node
+	gltf.Meshes["mesh1_1"] = mesh
+	gltf.BufferViews["bufferViewWithVertices_id"] = bufferView
+	gltf.Buffers["buffer_id"] = buffer
 	return &gltf, nil
 }
+
+func newjlTF() (gltf glTF.GlTF) {
+	gltf = glTF.GlTF{}
+	gltf.Nodes = map[string]glTF.Node{}
+	gltf.Techniques = map[string]glTF.Technique{}
+	gltf.Buffers = map[string]glTF.Buffer{}
+	gltf.Animations = map[string]glTF.Animation{}
+	gltf.Cameras = map[string]glTF.Camera{}
+	gltf.Materials = map[string]glTF.Material{}
+	gltf.Meshes = map[string]glTF.Mesh{}
+	gltf.Scenes = map[string]glTF.Scene{}
+	gltf.Accessors = map[string]glTF.Accessor{}
+	gltf.Samplers = map[string]glTF.Sampler{}
+	gltf.Skins = map[string]glTF.Skin{}
+	gltf.Images = map[string]glTF.Image{}
+	gltf.Asset = glTF.Asset{}
+	gltf.Asset.Version = "1.0.3"
+	gltf.Asset.Profile = glTF.AssetProfile{}
+	gltf.Asset.Profile.Api = "WebGL"
+	gltf.Asset.Profile.Version = "1.0.3"
+	gltf.BufferViews = map[string]glTF.BufferView{}
+	gltf.Programs = map[string]glTF.Program{}
+	gltf.Shaders = map[string]glTF.Shader{}
+	gltf.Textures = map[string]glTF.Texture{}
+	gltf.ExtensionsUsed = []string{}
+	return gltf
+}
+
+func handle(a []obj3d.IndexT) (b []int) {
+	b = []int{}
+	for _, u := range a {
+		b = append(b, *u.VertexIndex)
+	}
+	return b
+}
+

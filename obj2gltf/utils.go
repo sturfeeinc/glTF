@@ -13,6 +13,7 @@ func fToB(a *[]float64) (*[]byte) {
 	return &raw
 }
 
+// i don't remember :-(
 func Float64bytes(float float64) []byte {
 	bits := math.Float64bits(float)
 	bytes := make([]byte, 8)
