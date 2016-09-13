@@ -29,13 +29,22 @@ func isSpace(b byte) bool {
 	return b == WS || b == T
 }
 
-func SturfeeParser (r io.Reader) {
+type Obj struct {
+	Name string
+	V []float32
+	F []int16
+	Fc, Vc int
+}
 
+func SturfeeParser (r io.Reader) []Obj {
 	file, _ := ioutil.TempFile("", "data.3d.bin")
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 	v := []float32{}
 	f := []int16{}
+	obj := Obj{}
+	objs := []Obj{}
+	init := true
 	var token []byte
 	for scanner.Scan() {
 		token = bytes.Trim(scanner.Bytes(), " ")
@@ -50,6 +59,7 @@ func SturfeeParser (r io.Reader) {
 				parseFloat32(string(res[1])),
 				parseFloat32(string(res[2])),
 			)
+			obj.Vc +=3
 		// face
 		case token[0] == 'f' && isSpace(token[1]) :
 			res := bytes.Split(token[2:], WSS)
@@ -61,12 +71,27 @@ func SturfeeParser (r io.Reader) {
 				parseInt16(string(res[1])),
 				parseInt16(string(res[2])),
 			)
+			obj.Fc +=3
 
 		case token[0] == 'o' && isSpace(token[1]) :
-			//str := string(token[2:])
+			if init {
+				init = false
+				obj.Name = string(token[2:])
+				continue
+			}
+			obj.F = f
+			obj.V = v
+			objs = append(objs, obj)
+			obj := Obj{}
+			obj.Name = string(token[2:])
+			obj.Vc = 0
+			obj.Fc = 0
+			v = []float32{}
+			f = []int16{}
+		//str := string(token[2:])
 			//println(str)
 		default:
-			println(string(token))
+			//println(string(token))
 		}
 	}
 
@@ -74,6 +99,10 @@ func SturfeeParser (r io.Reader) {
 		panic(err)
 	}
 
+
+
+	println(objs[11].Name)
+	return objs
 	err := binary.Write(file, binary.LittleEndian, v)
 	if err != nil {
 		println(err.Error())
@@ -87,7 +116,7 @@ func SturfeeParser (r io.Reader) {
 
 
 
-	return
+	return []Obj{}
 }
 
 

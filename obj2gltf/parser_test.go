@@ -1,4 +1,5 @@
 package obj2gltf
+/*
 
 import (
 	"os"
@@ -10,8 +11,11 @@ func TestP(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	SturfeeParser(fileObj)
+	_ = SturfeeParser(fileObj)
+
+
 }
+*/
 
 
 
