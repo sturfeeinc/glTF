@@ -1,13 +1,11 @@
 package main
 
 import (
-	"github.com/sturfeeinc/JsonModelGen/exp/output"
+	"github.com/sturfeeinc/glTF"
 	"testing"
-
-	"github.com/aws/aws-sdk-go/private/model"
 )
 
 func TestParseBenchHistoryFirstTime(t *testing.T) {
-	var o model.Accessor
+	var o glTF.Accessor
 	println(o.Type)
 }

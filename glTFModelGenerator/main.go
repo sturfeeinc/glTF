@@ -51,6 +51,20 @@ type schema struct {
 	MinLength            string `json:"minLength"`
 }
 
+
+/*
+gltf_uriType
+format
+enum
+gltf_detailedDescription
+gltf_enumNames
+exclusiveMinimum
+minItems
+uniqueItems
+maxItems
+gltf_webgl
+properties
+*/
 type property struct {
 	Default       interface{} `json:"default,omitempty"`
 	Type          string `json:"type,omitempty"`
@@ -59,8 +73,8 @@ type property struct {
 	AddProperties extends `json:"additionalProperties,omitempty"`
 	Ref           string `json:"$ref,omitempty"`
 	Required      bool `json:"required,omitempty"`
-	Min           *float64 `json:"minimum,omitempty"`
-	Max           *float64 `json:"maximum,omitempty"`
+	Min           *int64 `json:"minimum,omitempty"`
+	Max           *int64 `json:"maximum,omitempty"`
 	Description   string `json:"gltf_detailedDescription,omitempty"`
 }
 
@@ -84,7 +98,7 @@ func main() {
 		generate(o.Name())
 	}
 
-	cmd := exec.Command("go", "fmt", "github.com/sturfeeinc/jlTF")
+	cmd := exec.Command("go", "fmt", "github.com/sturfeeinc/glTF")
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	var stdErr bytes.Buffer
@@ -232,9 +246,13 @@ func easyJSON(filename string) {
 
 func structTag(name string, p property) (s string) {
 
-		s = " `json:\"" + name + "\""
+	s = " `json:\"" + name + "\""
 	if p.Default == nil {
-		s = " `json:\"" + name + ",omitempty\""
+		if p.Type == "integer" {
+			s = " `json:\"" + name + "\""
+		} else {
+			s = " `json:\"" + name + ",omitempty\""
+		}
 	}
 	if p.Required ||
 		p.Min != nil ||
@@ -249,14 +267,14 @@ func structTag(name string, p property) (s string) {
 			if before {
 				s += ", "
 			}
-			s += "gte=" + strconv.FormatFloat(*p.Min, 'f', 10, 64)
+			s += "gte=" + strconv.FormatInt(*p.Min, 10)
 			before = true
 		}
 		if p.Max != nil {
 			if before {
 				s += ", "
 			}
-			s += "lte=" + strconv.FormatFloat(*p.Max, 'f', 10, 64)
+			s += "lte=" + strconv.FormatInt(*p.Max, 10)
 			before = true
 		}
 		s += "\""
