@@ -89,7 +89,7 @@ type extends struct {
 
 func main() {
 
-	info, err := ioutil.ReadDir("../shemas/")
+	info, err := ioutil.ReadDir("schemas/")
 	if err != nil {
 		panic(err)
 	}
@@ -168,7 +168,7 @@ func getType2(p property) string {
 }
 
 func generate(fileName string) {
-	file, err := os.Open("../shemas/" + fileName)
+	file, err := os.Open("schemas/" + fileName)
 	if err != nil {
 		panic(err)
 	}
@@ -214,7 +214,7 @@ func generate(fileName string) {
 
 
 	fileName = getTypeName(fileName)
-	fileName = "../" + strings.ToLower(string(fileName[0])) + fileName[1:] + ".go"
+	fileName = strings.ToLower(string(fileName[0])) + fileName[1:] + ".go"
 
 	ioutil.WriteFile(fileName, []byte(p), 0777)
 
