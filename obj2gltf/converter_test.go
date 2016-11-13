@@ -7,17 +7,17 @@ import (
 )
 
 func TestObjToGlTF(t *testing.T) {
-	fileObj, err := os.Open("/home/petr/gocode/src/github.com/sturfeeinc/jlTF/obj2gltf/SF_MinnaFinal300.obj")
+	fileObj, err := os.Open("/home/petr/gocode/src/github.com/sturfeeinc/glTF/obj2gltf/cube.obj")
 	if err != nil {
 		t.Error(err)
 	}
-	raw, err := Convert(fileObj)
+	Convert(fileObj, "")
 	if err != nil {
 		t.Error(err)
-	}
+	}/*
 	if len(raw) == 0 {
 		t.Error(err)
-	}
+	}*/
 }
 
 

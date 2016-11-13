@@ -4,7 +4,7 @@
  * Do not modify this file. It is automatically generated
  * with glTFModelGenerator (https://github.com/sturfeeinc/glTFModelGenerator)
  * Copyright (c) 2016 Sturfee inc. - http://sturfee.com
- * generated 2016-09-11 18:55:47.106260962 +0300 MSK
+ * generated 2016-09-17 21:21:17.912222485 +0300 MSK
  */
 
 package glTF
@@ -13,23 +13,23 @@ package glTF
 // The root object for a glTF asset.
 type GlTF struct {
 	GlTFProperty
-	Nodes          map[string]Node       `json:"nodes"`
-	Techniques     map[string]Technique  `json:"techniques"`
-	Buffers        map[string]Buffer     `json:"buffers"`
 	Animations     map[string]Animation  `json:"animations"`
-	Cameras        map[string]Camera     `json:"cameras"`
-	Materials      map[string]Material   `json:"materials"`
-	Meshes         map[string]Mesh       `json:"meshes"`
+	Asset          Asset                 `json:"asset"`
+	Samplers       map[string]Sampler    `json:"samplers"`
 	Scene          GlTFid                `json:"scene,omitempty"`
 	Scenes         map[string]Scene      `json:"scenes"`
-	Accessors      map[string]Accessor   `json:"accessors"`
-	Samplers       map[string]Sampler    `json:"samplers"`
-	Skins          map[string]Skin       `json:"skins"`
-	Images         map[string]Image      `json:"images"`
-	Asset          Asset                 `json:"asset"`
-	BufferViews    map[string]BufferView `json:"bufferViews"`
-	Programs       map[string]Program    `json:"programs"`
-	Shaders        map[string]Shader     `json:"shaders"`
-	Textures       map[string]Texture    `json:"textures"`
 	ExtensionsUsed []string              `json:"extensionsUsed"`
+	Buffers        map[string]Buffer     `json:"buffers"`
+	Cameras        map[string]Camera     `json:"cameras"`
+	Images         map[string]Image      `json:"images"`
+	Nodes          map[string]Node       `json:"nodes"`
+	Shaders        map[string]Shader     `json:"shaders"`
+	Accessors      map[string]Accessor   `json:"accessors"`
+	Materials      map[string]Material   `json:"materials"`
+	Programs       map[string]Program    `json:"programs"`
+	Skins          map[string]Skin       `json:"skins"`
+	BufferViews    map[string]BufferView `json:"bufferViews"`
+	Meshes         map[string]Mesh       `json:"meshes"`
+	Techniques     map[string]Technique  `json:"techniques"`
+	Textures       map[string]Texture    `json:"textures"`
 }

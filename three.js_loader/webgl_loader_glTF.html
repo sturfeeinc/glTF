@@ -1,168 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>three.js webgl - loaders - OBJ loader</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<style>
-			body {
-				font-family: Monospace;
-				background-color: #000;
-				color: #fff;
-				margin: 0px;
-				overflow: hidden;
-			}
-			#info {
-				color: #fff;
-				position: absolute;
-				top: 10px;
-				width: 100%;
-				text-align: center;
-				z-index: 100;
-				display:block;
-			}
-			#info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
-		</style>
-	</head>
+<head>
+    <title>three.js webgl - loaders - OBJ loader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0px;
+            overflow: hidden;
+        }
 
-	<body>
-		<div id="info">
-		<a href="http://threejs.org" target="_blank">three.js</a> - OBJLoader test
-		</div>
+        #info {
+            color: #fff;
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            display: block;
+        }
 
-		<script src="three.js"></script>
-		<script src="gltf/glTFLoader.js"></script>
-		<script src="gltf/glTFShaders.js"></script>
-		<script src="gltf/gltfUtilities.js"></script>
-		<script src="gltf/glTFLoaderUtils.js"></script>
-		<script src="gltf/glTFAnimation.js"></script>
-		<script src="gltf/glTF-parser.js"></script>
-		<!--<script src="js/loaders/OBJLoader.js"></script>-->
+        #info a, .button {
+            color: #f00;
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer
+        }
+    </style>
+</head>
 
-		<script>
+<body>
+<div id="info">
+    <a href="http://threejs.org" target="_blank">three.js</a> - OBJLoader test
+</div>
 
-			var container;
+<script src="three.js"></script>
+<script src="gltf/glTFLoader.js"></script>
+<script src="gltf/glTFShaders.js"></script>
+<script src="gltf/gltfUtilities.js"></script>
+<script src="gltf/glTFLoaderUtils.js"></script>
+<script src="gltf/glTFAnimation.js"></script>
+<script src="gltf/glTF-parser.js"></script>
+<!--<script src="js/loaders/OBJLoader.js"></script>-->
 
-			var camera, scene, renderer;
+<script>
 
-			var mouseX = 0, mouseY = 0;
+    var container;
 
-			var windowHalfX = window.innerWidth / 2;
-			var windowHalfY = window.innerHeight / 2;
+    var camera, scene, renderer;
+
+    var mouseX = 0, mouseY = 0;
+
+    var windowHalfX = window.innerWidth / 2;
+    var windowHalfY = window.innerHeight / 2;
 
 
-			init();
-			animate();
+    init();
+    animate();
 
 
-			function init() {
+    function init() {
 
-				container = document.createElement( 'div' );
-				document.body.appendChild( container );
+        container = document.createElement('div');
+        document.body.appendChild(container);
 
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-				camera.position.z = 250;
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+        camera.position.z = 250;
 
-				// scene
+        // scene
 
-				scene = new THREE.Scene();
+        scene = new THREE.Scene();
 
-				var ambient = new THREE.AmbientLight( 0x101030 );
-				scene.add( ambient );
+        var ambient = new THREE.AmbientLight(0x101030);
+        scene.add(ambient);
 
-				var directionalLight = new THREE.DirectionalLight( 0xffeedd );
-				directionalLight.position.set( 0, 0, 1 );
-				scene.add( directionalLight );
+        var directionalLight = new THREE.DirectionalLight(0xffeedd);
+        directionalLight.position.set(0, 0, 1);
+        scene.add(directionalLight);
 
-				// texture
+        // texture
 
-				var manager = new THREE.LoadingManager();
-				manager.onProgress = function ( item, loaded, total ) {
+        var manager = new THREE.LoadingManager();
+        manager.onProgress = function (item, loaded, total) {
 
-					console.log( item, loaded, total );
+            console.log(item, loaded, total);
 
-				};
+        };
 
-				var texture = new THREE.Texture();
+        var texture = new THREE.Texture();
 
-				var onProgress = function ( xhr ) {
-					if ( xhr.lengthComputable ) {
-						var percentComplete = xhr.loaded / xhr.total * 100;
-						console.log( Math.round(percentComplete, 2) + '% downloaded' );
-					}
-				};
+        var onProgress = function (xhr) {
+            if (xhr.lengthComputable) {
+                var percentComplete = xhr.loaded / xhr.total * 100;
+                console.log(Math.round(percentComplete, 2) + '% downloaded');
+            }
+        };
 
-				var onError = function ( xhr ) {
-				};
+        var onError = function (xhr) {
+        };
 
-				var loader = new THREE.glTFLoader();
+        var loader = new THREE.glTFLoader();
 
-				// load a glTF resource
-				loader.load(
-						// resource URL
-						'gltf_models/duck/glTF/duck.gltf',
-						// Function when resource is loaded
-						function (object) {
-							scene.add( object.scene );
+        // load a glTF resource
+        loader.load(
+                // resource URL
+//						'gltf_models/duck/glTF/duck.json',
+//                'm/test.json',
+                'm/cube.json',
+//						'BOX/Box.json',
+                // Function when resource is loaded
+                function (object) {
+                    console.log(object)
+                    scene.add(object.scene);
 
-						}, onProgress, onError
-				);
+                }, onProgress, onError
+        );
+        renderer = new THREE.WebGLRenderer();
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        window.addEventListener('resize', onWindowResize, false);
+    }
 
-				//
+    function onWindowResize() {
+        windowHalfX = window.innerWidth / 2;
+        windowHalfY = window.innerHeight / 2;
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
 
-				renderer = new THREE.WebGLRenderer();
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				container.appendChild( renderer.domElement );
+    function onDocumentMouseMove(event) {
+        mouseX = ( event.clientX - windowHalfX ) / 2;
+        mouseY = ( event.clientY - windowHalfY ) / 2;
+    }
 
-				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+    function animate() {
+        requestAnimationFrame(animate);
+        render();
+    }
 
-				//
-
-				window.addEventListener( 'resize', onWindowResize, false );
-
-			}
-
-			function onWindowResize() {
-
-				windowHalfX = window.innerWidth / 2;
-				windowHalfY = window.innerHeight / 2;
-
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-
-				renderer.setSize( window.innerWidth, window.innerHeight );
-
-			}
-
-			function onDocumentMouseMove( event ) {
-
-				mouseX = ( event.clientX - windowHalfX ) / 2;
-				mouseY = ( event.clientY - windowHalfY ) / 2;
-
-			}
-
-			//
-
-			function animate() {
-
-				requestAnimationFrame( animate );
-				render();
-
-			}
-
-			function render() {
-
-				camera.position.x += ( mouseX - camera.position.x ) * .05;
-				camera.position.y += ( - mouseY - camera.position.y ) * .05;
-
-				camera.lookAt( scene.position );
-
-				renderer.render( scene, camera );
-
-			}
-
-		</script>
-
-	</body>
+    function render() {
+        camera.position.x += ( mouseX - camera.position.x ) * .05;
+        camera.position.y += ( -mouseY - camera.position.y ) * .05;
+        camera.lookAt(scene.position);
+        renderer.render(scene, camera);
+    }
+</script>
+</body>
 </html>

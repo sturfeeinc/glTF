@@ -370,6 +370,7 @@ THREE.glTFLoader.prototype.load = function( url, callback ) {
 	};
 
 	IndicesDelegate.prototype.convert = function(resource, ctx) {
+		console.log(new Uint16Array(resource, 0, ctx.indices.count))
 		return new Uint16Array(resource, 0, ctx.indices.count);
 	};
 
@@ -412,6 +413,7 @@ THREE.glTFLoader.prototype.load = function( url, callback ) {
 		if (semantic == "POSITION") {
 			// TODO: Should be easy to take strides into account here
 			floatArray = new Float32Array(glResource, 0, attribute.count * componentsPerElementForGLType(attribute.type));
+			console.log(floatArray)
 			geom.geometry.addAttribute( 'position', new THREE.BufferAttribute( floatArray, 3 ) );
 		} else if (semantic == "NORMAL") {
 			nComponents = componentsPerElementForGLType(attribute.type);

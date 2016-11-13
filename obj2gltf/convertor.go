@@ -3,13 +3,15 @@ package obj2gltf
 import (
 	"io"
 	"github.com/sturfeeinc/obj3d"
-	"github.com/sturfeeinc/jlTF"
+	"github.com/sturfeeinc/glTF"
 	"encoding/json"
 	"os"
 	"encoding/binary"
+	"io/ioutil"
+	"fmt"
 )
 
-func Convert(r io.Reader) ([]byte, error) {
+func Convert(r io.Reader, outputDir string) (error) {
 
 	g, _ := og()
 	raw, err := json.Marshal(g)
@@ -17,12 +19,12 @@ func Convert(r io.Reader) ([]byte, error) {
 
 	}
 	println(string(raw))
-	return raw, nil
+	return nil
 }
 
 func og() (*glTF.GlTF, error) {
 
-	fileObj, err := os.Open("/home/petr/gocode/src/github.com/sturfeeinc/jlTF/obj2gltf/SF_MinnaFinal300.obj")
+	fileObj, err := os.Open("/home/petr/gocode/src/github.com/sturfeeinc/glTF/obj2gltf/cube.obj")
 	if err != nil {
 		panic(err)
 	}
@@ -35,16 +37,17 @@ func og() (*glTF.GlTF, error) {
 
 	bigOne := []byte{}
 
-
+	gltf.Materials["defaultMtl"] = getDefMtl()
 
 	for _, o := range objs {
-
-
-
 		node := glTF.Node{}
 		node.Name = o.Name
 		nodeID := "node_" + node.Name
 		scene.Nodes = append(scene.Nodes, glTF.GlTFid(nodeID))
+		node.Matrix = []float64{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}
+		node.Rotation = []float64{0,0,0,1}
+		node.Scale = []float64{1,1,1}
+		node.Translation = []float64{0,0,0}
 		node.Meshes = []glTF.GlTFid{}
 		meshID := "mesh_" + node.Name
 		node.Meshes = append(node.Meshes, glTF.GlTFid(meshID))
@@ -54,11 +57,13 @@ func og() (*glTF.GlTF, error) {
 		primitive.Attributes = map[string]glTF.MeshPrimitiveAttribute{}
 		accessoVID := "accessor_v_" + node.Name
 		primitive.Attributes["POSITION"] = glTF.MeshPrimitiveAttribute(accessoVID)
+		primitive.Mode = 4
 		accessoFID := "accessor_i_" + node.Name
 		primitive.Indices = glTF.GlTFid(accessoFID)
+		primitive.Material = glTF.GlTFid("defaultMtl")
 		mesh.Primitives = append(mesh.Primitives, primitive)
 
-		bufferViewID := "bufferView_" + node.Name
+		bufferViewID := "bufferView_v_" + node.Name
 
 
 
@@ -68,12 +73,13 @@ func og() (*glTF.GlTF, error) {
 		bufferView.ByteOffset = len(bigOne)
 
 		// v
-		p := tob(o.V)
+		p := tob(o.Positions)
 		lengthV := len(p)
 		bigOne = append(bigOne, p...)
 		// f
-		p = tobi(o.F)
+		p = tobi(o.Indices)
 		lengthF := len(p)
+		fmt.Printf("%f\n", p)
 		bigOne = append(bigOne, p...)
 
 		bufferView.ByteLength = lengthF + lengthV
@@ -95,10 +101,10 @@ func og() (*glTF.GlTF, error) {
 		accessor.Count = o.Fc
 		accessor.Type = "SCALAR"
 		gltf.Accessors[accessoFID] = accessor
+		gltf.BufferViews[bufferViewID] = bufferView
 
 		gltf.Nodes[nodeID] = node
 		gltf.Meshes[meshID] = mesh
-		gltf.BufferViews[bufferViewID] = bufferView
 	}
 
 
@@ -122,11 +128,18 @@ func og() (*glTF.GlTF, error) {
 	// buffer
 	buffer := glTF.Buffer{}
 	buffer.ByteLength = len(bigOne)
-	buffer.Uri = "verticies.bin"
+	buffer.Uri = "test.bin"
 	buffer.Type = "arraybuffer"
 
 	gltf.Scenes["defaultScenes"] = scene
 	gltf.Buffers["buffer_id"] = buffer
+	file, _ := ioutil.TempFile("", "test.bin")
+	err = binary.Write(file, binary.LittleEndian, bigOne)
+	if err != nil {
+		println(err.Error())
+	}
+	file.Close()
+
 	return &gltf, nil
 }
 
@@ -142,109 +155,15 @@ func tobi(b []int16) []byte {
 	d := []byte{}
 
 	for _, oo := range b {
-		bs := make([]byte, 4)
+		bs := make([]byte, 2)
+		println(uint16(oo), oo)
 		binary.LittleEndian.PutUint16(bs, uint16(oo))
+
+		fmt.Printf("%f\n", bs)
 		d = append(d, bs...)
 	}
 	return d
 }
-
-
-
-
-
-
-
-/*
-func objToglTF(o *obj3d.Obj) (*glTF.GlTF, error) {
-
-
-
-	fmt.Printf("%f\n", o)
-	gltf := newjlTF()
-	gltf.Scene = "defaultScenes"
-	scene := glTF.Scene{}
-	scene.Nodes = []glTF.GlTFid{glTF.GlTFid("node_1")}
-	node := glTF.Node{}
-	node.Name = *o.Name
-	node.Meshes = []glTF.GlTFid{}
-	node.Meshes = append(node.Meshes, glTF.GlTFid("mesh1_1"))
-	mesh := glTF.Mesh{}
-	mesh.Primitives = []glTF.MeshPrimitive{}
-	primitive := glTF.MeshPrimitive{}
-	primitive.Attributes = map[string]glTF.MeshPrimitiveAttribute{}
-	primitive.Attributes["POSITION"] = glTF.MeshPrimitiveAttribute("accessor_id0")
-	primitive.Indices = glTF.GlTFid("accessor_id1")
-	mesh.Primitives = append(mesh.Primitives, primitive)
-
-
-
-
-
-
-
-
-
-
-
-	file, err := os.OpenFile("verticies.bin", os.O_CREATE | os.O_RDWR, 0777)
-	if err != nil {
-		println(err.Error())
-	}
-
-	data := fToB(&o.Attribute.Vertices)
-	n1, err := file.Write(*data)
-	if err != nil {
-		println(err.Error())
-	}
-	shape := *o.Shapes
-	data1 := handle(shape[0].Mesh.Indices)
-	binary.Write(file, binary.LittleEndian, data1)
-
-
-	fileObj, err := os.Open("/home/petr/gocode/src/github.com/sturfeeinc/jlTF/obj2gltf/SF_MinnaFinal300.obj")
-	if err != nil {
-		panic(err)
-	}
-	_ = SturfeeParser(fileObj)
-
-
-	// accessors
-	accessor := glTF.Accessor{}
-	accessor.BufferView = glTF.GlTFid("bufferViewWithVertices_id")
-	accessor.ByteOffset = 0
-	accessor.ComponentType = 5126
-	accessor.Count = 1
-	accessor.Type = "SCALAR"
-	gltf.Accessors["accessor_id0"] = accessor
-	accessor = glTF.Accessor{}
-	accessor.BufferView = glTF.GlTFid("bufferViewWithVertices_id")
-	accessor.ByteOffset = 0
-	accessor.ComponentType = 5126
-	accessor.Count = 1
-	accessor.Type = "SCALAR"
-	gltf.Accessors["accessor_id1"] = accessor
-
-	// bufferViews
-	bufferView := glTF.BufferView{}
-	bufferView.Buffer = glTF.GlTFid("buffer_id")
-	bufferView.ByteOffset = 0
-	bufferView.ByteLength = n1
-
-	// buffer
-	buffer := glTF.Buffer{}
-	buffer.ByteLength = n1
-	buffer.Uri = "verticies.bin"
-	buffer.Type = "arraybuffer"
-
-	gltf.Scenes["defaultScenes"] = scene
-	gltf.Nodes["node_1"] = node
-	gltf.Meshes["mesh1_1"] = mesh
-	gltf.BufferViews["bufferViewWithVertices_id"] = bufferView
-	gltf.Buffers["buffer_id"] = buffer
-	return &gltf, nil
-}
-*/
 
 func newjlTF() (gltf glTF.GlTF) {
 	gltf = glTF.GlTF{}
@@ -271,6 +190,12 @@ func newjlTF() (gltf glTF.GlTF) {
 	gltf.Textures = map[string]glTF.Texture{}
 	gltf.ExtensionsUsed = []string{}
 	return gltf
+}
+
+func getDefMtl() (mtl glTF.Material) {
+	mtl = glTF.Material{}
+	mtl.Values = map[string]glTF.MaterialValues{}
+	return
 }
 
 func handle(a []obj3d.IndexT) (b []int) {

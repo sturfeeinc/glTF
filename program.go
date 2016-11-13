@@ -4,7 +4,7 @@
  * Do not modify this file. It is automatically generated
  * with glTFModelGenerator (https://github.com/sturfeeinc/glTFModelGenerator)
  * Copyright (c) 2016 Sturfee inc. - http://sturfee.com
- * generated 2016-09-11 18:55:47.106260962 +0300 MSK
+ * generated 2016-09-17 21:21:17.912222485 +0300 MSK
  */
 
 package glTF
@@ -13,7 +13,7 @@ package glTF
 // A shader program, including its vertex and fragment shader, and names of vertex shader attributes.
 type Program struct {
 	GlTFChildOfRootProperty
+	VertexShader   GlTFid   `json:"vertexShader,omitempty" validator:"required"`
 	Attributes     []string `json:"attributes"`
 	FragmentShader GlTFid   `json:"fragmentShader,omitempty" validator:"required"`
-	VertexShader   GlTFid   `json:"vertexShader,omitempty" validator:"required"`
 }

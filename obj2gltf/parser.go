@@ -18,6 +18,13 @@ const (
 	T = '\t'
 	BS = 64 // bitSize for strconv.Parse
 )
+//[0, 1, 2, 0, 2, 3, 0, 4, 5, 0, 5, 1, 3, 4, 0, 1, 5, 6, 1, 6, 2, 2, 6, 7, 2, 7, 3, 3, 7, 4, 5, 4, 7, 5, 7, 6]
+//[1, 2, 3, 1, 3, 4, 1, 5, 6, 1, 6, 2, 3, 7, 8, 3, 8, 4, 4, 8, 5, 4, 5, 1, 2, 6, 7, 2, 7, 3, 6, 5, 8, 6, 8, 7]
+//
+//[-0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5]
+//[-0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5]
+
+
 
 var (
 	WSS = []byte{' '} // whitespace separator
@@ -30,14 +37,14 @@ func isSpace(b byte) bool {
 }
 
 type Obj struct {
-	Name string
-	V []float32
-	F []int16
-	Fc, Vc int
+	Name      string
+	Positions []float32
+	Indices   []int16
+	Fc, Vc    int
 }
 
 func SturfeeParser (r io.Reader) []Obj {
-	file, _ := ioutil.TempFile("", "data.3d.bin")
+	file, _ := ioutil.TempFile("", "testCube.bin")
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 	v := []float32{}
@@ -79,10 +86,10 @@ func SturfeeParser (r io.Reader) []Obj {
 				obj.Name = string(token[2:])
 				continue
 			}
-			obj.F = f
-			obj.V = v
+			obj.Indices = f
+			obj.Positions = v
 			objs = append(objs, obj)
-			obj := Obj{}
+			obj = Obj{}
 			obj.Name = string(token[2:])
 			obj.Vc = 0
 			obj.Fc = 0
@@ -98,10 +105,13 @@ func SturfeeParser (r io.Reader) []Obj {
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
+			obj.Indices = f
+			obj.Positions = v
+			objs = append(objs, obj)
 
+			println(len(f))
+			println(len(v))
 
-
-	println(objs[11].Name)
 	return objs
 	err := binary.Write(file, binary.LittleEndian, v)
 	if err != nil {
@@ -145,79 +155,7 @@ func Parse(r io.Reader) (int, error) {
 		// texcoord
 		case token[0] == 'v' && token[1] == 't' && isSpace(token[2]) :
 			BinWriter.handleP(token[3:])
-		// face
-		/*case token[0] == 'f' && isSpace(token[1]) :
-			res = bytes.Split(token[2:], WSS)
-			check = 0 // nullify check flag
-			for _, a := range res {
-				index, check_ = parseTriple(a)
-				if check != 0 && check != check_ {
-					panic(`"f v//vn v/vt/vn v/vt/vn" error`)
-				}
-				check = check_
-				shape1 := *shape
-				shape1.Mesh.Indices = append(shape1.Mesh.Indices, index)
-				shape1.Mesh.MaterialIds = append(shape1.Mesh.MaterialIds, currentMaterialId)
-				shape1.Mesh.NumFaceVertices = append(shape1.Mesh.NumFaceVertices, uint(len(res)))
-				shape = &shape1
-			}
-		// comment
-		case token[0] == '#':
-		// line
-		case token[0] == 'l' && isSpace(token[1]) :
-			res = bytes.Split(token[2:], WSS)
-			check = 0 // nullify check flag
-			line := Line{}
-			line.Indices = []IndexT{}
-			for _, a := range res {
-				index, check_ = parseCouple(a)
-				if check != 0 && check != check_ {
-					panic(`"f v//vn v/vt/vn v/vt/vn" error`)
-				}
-				check = check_
-				line.Indices = append(line.Indices, index)
-			}
-			shape1 := *shape
-			if shape1.Lines == nil {
-				lines := []Line{}
-				shape1.Lines = &lines
-			}
-			lines := *shape1.Lines
-			lines = append(lines, line)
-			shape1.Lines = &lines
-			shape = &shape1
-		// use mtl
-		case string(token[0:6]) == "usemtl" && isSpace(token[6]) :
-			if shape != nil {
-				Shapes = append(Shapes, *shape)
-			}
-			currentMaterialId = getMaterialId(&Materials, string(token[7:]))
-			shape1 := ShapeT{}
-			shape1.Mesh = MeshT{}
-			shape1.Mesh.Indices = []IndexT{}
-			shape1.Mesh.MaterialIds = []int{}
-			shape1.Mesh.NumFaceVertices = []uint{}
-			shape = &shape1
-		// load mtl
-		case string(token[0:6]) == "mtllib" && isSpace(token[6]) :
-			res := bytes.Split(token[7:], WSS)
-			for _, name := range res {
-				mtrls := mtllib(string(name))
-				Materials = append(Materials, *mtrls...)
-			}
-		// smoothing group
-		case token[0] == 's' && isSpace(token[1]) :
-			shape1 := *shape
-			if token[2] == 'o' &&  token[3] == 'f' &&  token[4] == 'f' {
-				shape1.SmoothingGroup = 0.
-			} else {
-				shape1.SmoothingGroup = parseFloat(string(token[2:]))
-			}
-			shape = &shape1
-		// object name/id
-		case token[0] == 'o' && isSpace(token[1]) :
-			str := string(token[2:])
-			name = &str*/
+
 		default:
 			//println(string(token))
 		}
@@ -226,15 +164,6 @@ func Parse(r io.Reader) (int, error) {
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
-	/*Shapes = append(Shapes, *shape)
-	Attribute.Vertices = v
-	Attribute.Texcoords = vt
-	Attribute.Normals = vn
-	obj := Obj{}
-	obj.Name = name
-	obj.Attribute = &Attribute
-	obj.Materials = &Materials
-	obj.Shapes = &Shapes*/
 
 	return 1, nil
 }
@@ -328,3 +257,24 @@ func parseInt16(s string) int16 {
 	}
 	return int16(f)
 }
+
+/*
+
+
+
+x11,y11,z11 -> p11
+x21,y21,z21 -> p21
+x31,y31,z31 -> p31
+x12,y12,z12 -> p12
+x22,y22,z22 -> p22
+x32,y32,z32 -> p32
+
+x1,y1,z1 -> p1
+x2,y2,z2 -> p2
+x3,y3,z3 -> p3
+x4,y4,z4 -> p4
+
+f1 -> p1,p4,p3
+f2 -> p1,p2,p3
+
+*/

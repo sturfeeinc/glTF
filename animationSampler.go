@@ -4,7 +4,7 @@
  * Do not modify this file. It is automatically generated
  * with glTFModelGenerator (https://github.com/sturfeeinc/glTFModelGenerator)
  * Copyright (c) 2016 Sturfee inc. - http://sturfee.com
- * generated 2016-09-11 18:55:47.106260962 +0300 MSK
+ * generated 2016-09-17 21:21:17.912222485 +0300 MSK
  */
 
 package glTF
@@ -13,7 +13,7 @@ package glTF
 // Combines input and output parameters with an interpolation algorithm to define a keyframe graph (but not its target).
 type AnimationSampler struct {
 	GlTFProperty
-	Input         GlTFid `json:"input,omitempty" validator:"required"`
 	Interpolation string `json:"interpolation"`
 	Output        GlTFid `json:"output,omitempty" validator:"required"`
+	Input         GlTFid `json:"input,omitempty" validator:"required"`
 }

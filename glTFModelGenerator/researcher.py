@@ -19,10 +19,27 @@ for fileName in onlyfiles:
     #     properties[name] = 1
 
     # that loop find all fields for property level
+    # if "properties" in data:
+    #     for p in data['properties']:
+    #         for c in data['properties'][p]:
+    #             properties[c] = 1
+
     if "properties" in data:
         for p in data['properties']:
             for c in data['properties'][p]:
-                properties[c] = 1
+                if c == "type":
+                    if "required" in data['properties'][p]:
+                        print data['properties'][p][c]
+                        print p
+
+
+                    # try:
+                    #     if data['properties'][p][c] == "number":
+                    #         print p
+                    #     properties[data['properties'][p][c]] = 1
+                    # except:
+                    #     print data['properties'][p][c]
+
 
 for name in properties:
     print name
