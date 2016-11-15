@@ -13,6 +13,7 @@ import (
 
 var HEADER string
 const PATH = "specs/"
+const OUTPUT_PATH = "model/"
 
 func init() {
 
@@ -213,7 +214,7 @@ func generate(fileName string) {
 
 
 	fileName = getTypeName(fileName)
-	fileName = strings.ToLower(string(fileName[0])) + fileName[1:] + ".go"
+	fileName = OUTPUT_PATH + strings.ToLower(string(fileName[0])) + fileName[1:] + ".go"
 
 	ioutil.WriteFile(fileName, []byte(p), 0777)
 
