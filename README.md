@@ -1,4 +1,4 @@
-[![GoDoc](https://godoc.org/github.com/sturfeeinc/glTF?status.svg)](https://godoc.org/github.com/sturfeeinc/glTF)
+[![GoDoc](https://godoc.org/github.com/sturfeeinc/glTF/model?status.svg)](https://godoc.org/github.com/sturfeeinc/glTF/model)
 
 glTF
 ====
