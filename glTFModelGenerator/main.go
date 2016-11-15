@@ -9,9 +9,11 @@ import (
 	"bytes"
 	"strconv"
 	"time"
+	"sync"
 )
 
 var HEADER string
+var wg sync.WaitGroup
 const PATH = "specs/"
 
 func init() {
@@ -94,11 +96,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	wg = sync.WaitGroup{}
 	for _, o := range info {
-		generate(o.Name())
+		go generate(o.Name())
 	}
-
+	wg.Wait()
 	cmd := exec.Command("go", "fmt", "github.com/sturfeeinc/glTF")
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -169,6 +171,7 @@ func getType2(p property) string {
 }
 
 func generate(fileName string) {
+	wg.Add(1)
 	file, err := os.Open(PATH + fileName)
 	if err != nil {
 		panic(err)
@@ -220,6 +223,7 @@ func generate(fileName string) {
 	ioutil.WriteFile(fileName, []byte(p), 0777)
 
 	//easyJSON(fileName)
+	wg.Done()
 }
 
 func getTypeName(filename string) string {
