@@ -12,6 +12,7 @@ import (
 )
 
 var HEADER string
+const PATH = "specs/"
 
 func init() {
 
@@ -89,7 +90,7 @@ type extends struct {
 
 func main() {
 
-	info, err := ioutil.ReadDir("schemas/")
+	info, err := ioutil.ReadDir(PATH)
 	if err != nil {
 		panic(err)
 	}
@@ -168,7 +169,7 @@ func getType2(p property) string {
 }
 
 func generate(fileName string) {
-	file, err := os.Open("schemas/" + fileName)
+	file, err := os.Open(PATH + fileName)
 	if err != nil {
 		panic(err)
 	}
