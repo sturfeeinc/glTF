@@ -218,7 +218,8 @@ func generate(fileName string) {
 
 	ioutil.WriteFile(fileName, []byte(p), 0777)
 
-	//easyJSON(fileName)
+	// generate serializator
+	easyJSON(fileName)
 }
 
 func getTypeName(filename string) string {
